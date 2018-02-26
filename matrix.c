@@ -13,10 +13,10 @@ print the matrix
 */
 void print_matrix(struct matrix *m) {
   int i = 0;
-  for(; i < m->lastcol; i++){
+  for(; i < m->rows; i++){
     int o = 0;
-    for(; o < 3; o++){
-      printf("%lf ", m->m[o][i]);
+    for(; o < m->cols; o++){
+      printf("%lf ", m->m[i][o]);
     }printf("\n");
   }
 }
@@ -28,6 +28,18 @@ Returns:
 turns m in to an identity matrix
 */
 void ident(struct matrix *m) {
+  int i = 0;
+  int o = 0;
+  for(; i < m -> rows; i++){
+    for(; o < m -> rows; o++){
+      m -> m[i][o] = 0;
+    }
+  }
+  i = 0;
+
+  for(; i < m -> rows; i++){
+    m -> m[i][i] = 1;
+  }
 }
 
 
@@ -39,6 +51,34 @@ Returns:
 a*b -> b
 */
 void matrix_mult(struct matrix *a, struct matrix *b) {
+  double **tmp;
+  int i = 0;
+  tmp = (double **)malloc(a->rows * sizeof(double *));
+  for (i=0;i<a->rows;i++) {
+      tmp[i]=(double *)malloc(b->cols * sizeof(double));
+  }
+  int r = 0;
+  int c = 0;
+  for(; r < a->rows; r++){
+    c = 0;
+    for(; c < b->cols; c++){
+      int ar = 0;
+      int temp = 0;
+      for(; ar < a->rows; ar++){
+	temp += a->m[ar][c] * b->m[r][ar];
+      }
+      //printf("%d %d %d\n", temp, r, c);
+      tmp[r][c] = temp;
+    }
+  }
+  r = 0;
+  c = 0;
+  for(; r < a->rows; r++){
+    c = 0;
+    for(; c < b->cols; c++){
+      b->m[r][c] = tmp[r][c];
+    }
+  }
 }
 
 
@@ -64,7 +104,7 @@ struct matrix *new_matrix(int rows, int cols) {
   tmp = (double **)malloc(rows * sizeof(double *));
   for (i=0;i<rows;i++) {
       tmp[i]=(double *)malloc(cols * sizeof(double));
-    }
+  }
 
   m=(struct matrix *)malloc(sizeof(struct matrix));
   m->m=tmp;
